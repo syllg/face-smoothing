@@ -1,12 +1,13 @@
-[![Build Status](https://travis-ci.com/5starkarma/face-smoothing.svg?branch=main)](https://travis-ci.com/5starkarma/face-smoothing) [![Python 3.6](https://img.shields.io/badge/python-3.6-blue.svg)](https://www.python.org/downloads/release/python-360/)
-
+[!\[Build Status](https://travis-ci.com/syllg/face-filter.svg?branch=main null)](https://travis-ci.com/syllg/face-filter) [!\[Python 3.6](https://img.shields.io/badge/python-3.6-blue.svg null)](https://www.python.org/downloads/release/python-360/)
 
 # Face Smoothing: Detection and Beautification
 
-Input Image             |  Output Image w/ Facial Smoothing
-:-------------------------:|:-------------------------:
-![alt text](https://github.com/5starkarma/face-smoothing/blob/main/data/images/hillary_clinton.jpg?raw=true "Input image")  |  ![alt text](https://github.com/5starkarma/face-smoothing/blob/main/data/output/output_0.jpg?raw=true "Output image")
----
+|                                                          Input Image                                                         |                                            Output Image w/ Facial Smoothing                                            |
+| :--------------------------------------------------------------------------------------------------------------------------: | :--------------------------------------------------------------------------------------------------------------------: |
+| !\[alt text]\(https\://github.com/syllg/face-filter/blob/main/data/images/hillary\_clinton.jpg?raw=true Input image) | !\[alt text]\(https\://github.com/syllg/face-filter/blob/main/data/output/output\_0.jpg?raw=true Output image) |
+
+***
+
 OpenCV implementation of facial smoothing. Facial detection is done using an pretrained TensorFlow face detection model. Facial smoothing is accomplished using the following steps:
 
 - Change image from BGR to HSV colorspace
@@ -14,33 +15,115 @@ OpenCV implementation of facial smoothing. Facial detection is done using an pre
 - Apply a bilateral filter to the Region of Interest
 - Apply filtered ROI back to original image
 
----
+***
 
 ## Install
+
 ```
-git clone https://github.com/5starkarma/face-smoothing.git
-cd face-smoothing
+git clone https://github.com/syllg/face-filter.git
+cd face-filter
+pip install -r requirements.txt
 ```
+
 ## Run
+
+### Batch mode
+
 ```
-python3 infer.py --input 'path/to/input_file.jpg' (Input file - image, video, or folder with images and/or videos - default is hillary_clinton.jpg)
-                         'can/handle/videos.mp4'
-                         'as/well/as/directories'
-                 --output 'path/to/output_folder' (Output folder - default is data/output)
-                 --save_steps 'path/to/file.jpg' (Concats images from each step of the process and saves them)
-                 --show-detections (Saves bounding box detections to output)
+python infer.py --input "path/to/input.jpg" --output "data/output"
+python infer.py --input "path/to/video.mp4" --output "data/output"
+python infer.py --input "path/to/folder" --output "data/output"
 ```
+
+### Watcher mode (hot-folder)
+
+If `--input` is not provided, the app runs as a folder watcher.
+
+Default folders:
+
+- Input: `~/selfy-time/beauty_input`
+- Output: `~/selfy-time/beauty_output`
+
+Example:
+
+```bash
+python infer.py --watch-input "C:\Users\yourname\selfy-time\beauty_input" --watch-output "C:\Users\yourname\selfy-time\beauty_output" --parallel-workers 3
+```
+
+Useful flags:
+
+- `--parallel-workers`: number of worker threads
+- `--processing-timeout-seconds`: timeout for stuck processing detection
+- `--stuck-check-interval-seconds`: interval for stuck checker
+- `--processed-ttl-seconds`: retention time for processed tracker entries
+- `--save-steps`: save concatenated processing steps image
+- `--show-detections`: output image with bounding boxes
+
 #### Example: --save-steps flag
-![alt text](https://github.com/5starkarma/face-smoothing/blob/main/data/output/combined_0.jpg?raw=true "Processing steps")
+
+!\[alt text]\(https\://github.com/syllg/face-filter/blob/main/data/output/combined\_0.jpg?raw=true Processing steps)
+
+## Build Windows executable (.exe)
+
+This project includes an auto-py-to-exe config:
+
+- [settings\_face\_smoothing.json](file:///c:/Users/sylvi/works/face-smoothing/settings_face_smoothing.json)
+
+Steps:
+
+1. Install build tools
+
+```bash
+pip install auto-py-to-exe pyinstaller
+```
+
+1. Run UI
+
+```bash
+auto-py-to-exe
+```
+
+1. Import config JSON: `settings_face_smoothing.json`
+2. Build
+
+If you changed packaging settings before, remove old artifacts first:
+
+```bash
+rmdir /s /q build
+rmdir /s /q dist
+rmdir /s /q output
+```
+
+Quick test:
+
+```bash
+output\infer\infer.exe --help
+```
+
+If startup fails, check:
+
+- `C:\Users\<username>\face-smoothing.log`
+
+## Reference
+https://github.com/5starkarma/face-smoothing
 
 ## TODO
-- [X] Finish documentation and cleanup functions
-- [X] Reduce input image size for detections
-- [X] Fix combined output
-- [X] Test on multiple faces
-- [X] Apply blurring on multiple faces
-- [X] Video inference
-- [X] Save bounding box to output
+
+- [x] Finish documentation and cleanup functions
+- [x] Reduce input image size for detections
+- [x] Fix combined output
+- [x] Test on multiple faces
+- [x] Apply blurring on multiple faces
+- [x] Video inference
+- [x] Save bounding box to output
+- [x] **New: Hot-folder watcher mode for automated processing**
+- [x] **New: Parallel processing with multi-worker threads**
+- [x] **New: Intelligent processing tracker (deduplication & state tracking)**
+- [x] **New: Automatic recovery for "stuck" files**
+- [x] **New: Configurable TTL for processed file history**
+- [x] **New: Portable Windows executable (.exe) support**
+- [x] **New: Persistent logging and crash reporting**
 - [ ] Apply different blurring techniques/advanced algo using facial landmarks to blur only skin regions
 - [ ] Unit tests
 - [ ] Run time tests on units
+
