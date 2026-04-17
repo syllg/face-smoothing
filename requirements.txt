@@ -6,3 +6,7 @@ watchdog>=3.0.0
 python-dotenv>=1.0.0
 auto-py-to-exe
 pyinstaller
+insightface>=0.7.3
+onnxruntime-gpu>=1.18.0
+opencv-python
+torch torchvision --index-url https://download.pytorch.org/whl/cu124

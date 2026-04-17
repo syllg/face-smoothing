@@ -1,0 +1,31 @@
+# To change the effect of the smoothing change the image and filter values
+
+net:
+    model_name: 'buffalo_l'
+    det_size: [640, 640]
+    conf_threshold: 0.9
+
+image:
+    # hsv range affects the skin region to be selected for filtering
+    hsv_low: !!python/tuple [0.,50.,50.]
+    hsv_high: !!python/tuple [35.,255.,255.]
+
+    # Output image filenames
+    output: 'output_'
+    output_steps: 'combined_'
+
+    bbox_color: !!python/tuple [255, 204, 102]
+
+    img_steps_height: 300
+
+video:
+    output: 'video_output_'
+    fps: 30
+
+filter:
+    # Diameter of each pixel neighborhood
+    diameter: 10
+
+    # Value of sigma in the color space. The greater the value, the colors farther to each other will start to get mixed.
+    sigma_1: 25
+    sigma_2: 25

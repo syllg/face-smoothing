@@ -1,129 +1,149 @@
-[!\[Build Status](https://travis-ci.com/syllg/face-filter.svg?branch=main null)](https://travis-ci.com/syllg/face-filter) [!\[Python 3.6](https://img.shields.io/badge/python-3.6-blue.svg null)](https://www.python.org/downloads/release/python-360/)
+# Face Smoothing
 
-# Face Smoothing: Detection and Beautification
+Face smoothing pipeline for images/videos with:
+- InsightFace face detection + landmarks
+- BiSeNet face parsing
+- Skin-mask smoothing + exclusion masks
+- Batch mode and hot-folder watcher mode
+- Windows standalone `.exe` build via PyInstaller
 
-|                                                          Input Image                                                         |                                            Output Image w/ Facial Smoothing                                            |
-| :--------------------------------------------------------------------------------------------------------------------------: | :--------------------------------------------------------------------------------------------------------------------: |
-| !\[alt text]\(https\://github.com/syllg/face-filter/blob/main/data/images/hillary\_clinton.jpg?raw=true Input image) | !\[alt text]\(https\://github.com/syllg/face-filter/blob/main/data/output/output\_0.jpg?raw=true Output image) |
+## Project Layout
 
-***
-
-OpenCV implementation of facial smoothing. Facial detection is done using an pretrained TensorFlow face detection model. Facial smoothing is accomplished using the following steps:
-
-- Change image from BGR to HSV colorspace
-- Create mask of HSV image
-- Apply a bilateral filter to the Region of Interest
-- Apply filtered ROI back to original image
-
-***
+```text
+src/
+  face_smoothing/
+    configs/
+      configs.yaml
+    configs/
+    detector/
+      backend.py
+      detect.py
+      smooth.py
+    services/
+      face_smoothing_service.py
+      tracker.py
+      watcher.py
+    utils/
+      config.py
+      image.py
+      video.py
+      shared.py
+      types.py
+    main.py
+    models/
+      buffalo_l/
+        1k3d68.onnx
+        2d106det.onnx
+        det_10g.onnx
+        genderage.onnx
+        w600k_r50.onnx
+      faceparsing_resnet18.onnx
+      face_detection_yunet_2023mar.onnx
+      opencv_face_detector.pb
+      opencv_face_detector.pbtxt
+infer.py
+infer.spec
+```
 
 ## Install
 
-```
-git clone https://github.com/syllg/face-filter.git
-cd face-filter
+```bash
 pip install -r requirements.txt
 ```
 
-## Run
+## Run (Development)
 
 ### Batch mode
 
-```
+```bash
 python infer.py --input "path/to/input.jpg" --output "data/output"
-python infer.py --input "path/to/video.mp4" --output "data/output"
 python infer.py --input "path/to/folder" --output "data/output"
+python infer.py --input "path/to/video.mp4" --output "data/output"
 ```
 
-### Watcher mode (hot-folder)
+### Watcher mode
 
-If `--input` is not provided, the app runs as a folder watcher.
+If `--input` is not provided, app runs in watcher mode.
 
 Default folders:
-
 - Input: `~/selfy-time/beauty_input`
 - Output: `~/selfy-time/beauty_output`
 
 Example:
 
-```bash
+```powershell
 python infer.py --watch-input "C:\Users\yourname\selfy-time\beauty_input" --watch-output "C:\Users\yourname\selfy-time\beauty_output" --parallel-workers 3
 ```
 
 Useful flags:
+- `--input`: path ke file gambar, video, atau folder berisi gambar.
+- `--output`: folder tujuan hasil output. Default: `data/output`.
+- `--parallel`: jumlah worker paralel di mode batch (dalam satu proses).
+- `--save-detection`: simpan image dengan bounding box deteksi wajah.
+- `--save-parsing`: simpan mask parsing dan area smoothing (debug).
+- `--save-steps`: gabungkan dan simpan semua step pipeline ke satu gambar.
+- `--show-detections`: gunakan output dengan bounding box di hasil akhir.
+- `--check-models-only`: hanya cek kelengkapan model dan keluar (tanpa proses gambar).
 
-- `--parallel-workers`: number of worker threads
-- `--processing-timeout-seconds`: timeout for stuck processing detection
-- `--stuck-check-interval-seconds`: interval for stuck checker
-- `--processed-ttl-seconds`: retention time for processed tracker entries
-- `--save-steps`: save concatenated processing steps image
-- `--show-detections`: output image with bounding boxes
+Watcher specific:
+- `--watch-input`: override folder input watcher (default `~/selfy-time/beauty_input`).
+- `--watch-output`: override folder output watcher (default `~/selfy-time/beauty_output`).
+- `--parallel-workers`: jumlah worker thread di mode watcher.
 
-#### Example: --save-steps flag
+## Models Required
 
-!\[alt text]\(https\://github.com/syllg/face-filter/blob/main/data/output/combined\_0.jpg?raw=true Processing steps)
+Semua model di-bundle di `src/face_smoothing/models/` dan ikut dimasukkan ke `.exe`:
 
-## Build Windows executable (.exe)
+- `faceparsing_resnet18.onnx`  
+  BiSeNet face parsing, menghasilkan peta kelas wajah (kulit, rambut, dll.).
+- `buffalo_l/1k3d68.onnx`  
+  3D landmark model (68 titik) untuk alignment/detail.
+- `buffalo_l/2d106det.onnx`  
+  2D landmark model (106 titik) untuk parsing lebih presisi.
+- `buffalo_l/det_10g.onnx`  
+  Face detection model utama (bounding box).
+- `buffalo_l/genderage.onnx`  
+  Model gender/age (opsional, tidak kritikal untuk smoothing).
+- `buffalo_l/w600k_r50.onnx`  
+  Face recognition backbone (dipakai InsightFace, tidak langsung dipakai smoothing).
+- `face_detection_yunet_2023mar.onnx`  
+  Alternatif detector (tidak aktif default, tapi ter-bundle sebagai opsi).
+- `opencv_face_detector.pb` / `opencv_face_detector.pbtxt`  
+  Model dan config detector OpenCV (legacy/opsional).
 
-This project includes an auto-py-to-exe config:
+## Build Windows `.exe` (Standalone)
 
-- [settings\_face\_smoothing.json](file:///c:/Users/sylvi/works/face-smoothing/settings_face_smoothing.json)
+Use the provided spec file:
 
-Steps:
-
-1. Install build tools
-
-```bash
-pip install auto-py-to-exe pyinstaller
+```powershell
+python -m PyInstaller --noconfirm --clean infer.spec
 ```
 
-1. Run UI
+Output:
 
-```bash
-auto-py-to-exe
+```text
+dist/infer/infer.exe
 ```
 
-1. Import config JSON: `settings_face_smoothing.json`
-2. Build
+Quick validation:
 
-If you changed packaging settings before, remove old artifacts first:
-
-```bash
-rmdir /s /q build
-rmdir /s /q dist
-rmdir /s /q output
+```powershell
+.\dist\infer\infer.exe --help
+.\dist\infer\infer.exe --check-models-only
 ```
 
-Quick test:
+## Runtime Notes
 
-```bash
-output\infer\infer.exe --help
-```
+- Frozen mode resolves bundled assets from PyInstaller bundle paths (`_internal/face_smoothing/...`).
+- Config and model assets are expected to be bundled from:
+  - `src/face_smoothing/configs`
+  - `src/face_smoothing/models`
+- Startup/runtime logs are written to:
+  - `C:\Users\<username>\face-smoothing.log`
 
-If startup fails, check:
+## Troubleshooting
 
-- `C:\Users\<username>\face-smoothing.log`
-
-## Reference
-https://github.com/5starkarma/face-smoothing
-
-## TODO
-
-- [x] Finish documentation and cleanup functions
-- [x] Reduce input image size for detections
-- [x] Fix combined output
-- [x] Test on multiple faces
-- [x] Apply blurring on multiple faces
-- [x] Video inference
-- [x] Save bounding box to output
-- [x] **New: Hot-folder watcher mode for automated processing**
-- [x] **New: Parallel processing with multi-worker threads**
-- [x] **New: Intelligent processing tracker (deduplication & state tracking)**
-- [x] **New: Automatic recovery for "stuck" files**
-- [x] **New: Configurable TTL for processed file history**
-- [x] **New: Portable Windows executable (.exe) support**
-- [x] **New: Persistent logging and crash reporting**
-- [ ] Apply different blurring techniques/advanced algo using facial landmarks to blur only skin regions
-- [ ] Unit tests
-- [ ] Run time tests on units
-
+- `configs.yaml not found`:
+  rebuild with `--clean` and run the latest `dist/infer/infer.exe`.
+- New file in watcher not processed:
+  watcher waits for file stabilization and tracker re-queues modified files based on mtime.
