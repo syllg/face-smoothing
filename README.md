@@ -1,5 +1,3 @@
-)
-
 # Face Smoothing: Detection and Beautification
 
 ***
