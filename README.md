@@ -1,10 +1,6 @@
-[!\[Build Status](https://travis-ci.com/syllg/face-filter.svg?branch=main null)](https://travis-ci.com/syllg/face-filter) [!\[Python 3.6](https://img.shields.io/badge/python-3.6-blue.svg null)](https://www.python.org/downloads/release/python-360/)
+)
 
 # Face Smoothing: Detection and Beautification
-
-|                                                          Input Image                                                         |                                            Output Image w/ Facial Smoothing                                            |
-| :--------------------------------------------------------------------------------------------------------------------------: | :--------------------------------------------------------------------------------------------------------------------: |
-| !\[alt text]\(https\://github.com/syllg/face-filter/blob/main/data/images/hillary\_clinton.jpg?raw=true Input image) | !\[alt text]\(https\://github.com/syllg/face-filter/blob/main/data/output/output\_0.jpg?raw=true Output image) |
 
 ***
 
