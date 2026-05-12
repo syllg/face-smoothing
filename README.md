@@ -117,7 +117,5 @@ https://github.com/5starkarma/face-smoothing
 - [x] **New: Configurable TTL for processed file history**
 - [x] **New: Portable Windows executable (.exe) support**
 - [x] **New: Persistent logging and crash reporting**
-- [ ] Apply different blurring techniques/advanced algo using facial landmarks to blur only skin regions
-- [ ] Unit tests
-- [ ] Run time tests on units
+- [x] Apply different blurring techniques/advanced algo using facial landmarks to blur only skin regions
 
